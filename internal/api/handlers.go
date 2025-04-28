@@ -27,9 +27,10 @@ func ConvertHandler(w http.ResponseWriter, r *http.Request) {
 	var source string
 	if data.URL != "" {
 		source = data.URL
-	}
-	if data.HTML != "" {
+	} else if data.HTML != "" {
 		source = data.HTML
+	} else {
+		http.Error(w, "Please submit either html or a url", http.StatusBadRequest)
 	}
 	// 3. Create a new job
 	pdf, err := convert.Convert(ctx, source, data)
@@ -38,7 +39,6 @@ func ConvertHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// 4. Return job ID/status to client
-	// // Set response headers
 	w.Header().Set("Content-Type", "application/pdf")
 	w.Header().Set("Content-Disposition", "attachment; filename=document.pdf")
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(pdf)))
